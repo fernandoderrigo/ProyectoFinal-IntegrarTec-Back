@@ -8,7 +8,7 @@
 - []
 
 ## Models
-```json
+```prisma
 model Users {
 id               Int              @id @default(autoincrement())
 firstName        String
