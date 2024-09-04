@@ -8,6 +8,7 @@
 - []
 
 ## Models
+```json
 model Users {
 id               Int              @id @default(autoincrement())
 firstName        String
@@ -66,5 +67,6 @@ id_Song          Int            @relation(fields: [id_Song], references: [id])
 gerder_fav       String
 artist_fav       String
 }
+```
 
 
