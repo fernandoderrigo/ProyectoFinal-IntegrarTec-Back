@@ -1,10 +1,8 @@
 # Tasklist
 - [] Conexion con prisma y db
-- [] Modelos prisma
 - [] Metodos para controladores
 - [] Validaciones Joi - Schemas
 - [] Validacion de schemas
-- [] Tokens
 - []
 
 ## Models

@@ -1,19 +1,24 @@
-import jwt from 'jsonwebtoken'
+import jwt from 'jsonwebtoken';
 
-export const generateToken = ({ data, expiresIn = '1h', isRefresh = false }) => {
-    const secretKey = isRefresh ? process.env.REFRESH_TOKEN_SECRET : process.env.ACCESS_TOKEN_SECRET 
-    const token = jwt.sign(data, secretKey, {
-      expiresIn
-    })
-  
-    return token
-  }
-  
-  export const verifyToken = (token, isRefresh = false) => {
-    const secretKey = isRefresh ? process.env.REFRESH_TOKEN_SECRET : process.env.ACCESS_TOKEN_SECRET ;
-    try {
-        return jwt.verify(token, secretKey);
-    } catch (error) {
-        throw new Error('Invalid or expired token');
-    }
-}
+const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET; 
+const ACCESS_TOKEN_EXPIRATION = '4m'; 
+const REFRESH_TOKEN_EXPIRATION = '1d';
+
+const generateAccessToken = (user) => {
+  return jwt.sign(
+    { id: user.id, email: user.email, status: user.status },
+    ACCESS_TOKEN_SECRET,
+    { expiresIn: ACCESS_TOKEN_EXPIRATION }
+  );
+};
+
+const generateRefreshToken = (user) => {
+  return jwt.sign(
+    { id: user.id, email: user.email, status: user.status },
+    REFRESH_TOKEN_SECRET,
+    { expiresIn: REFRESH_TOKEN_EXPIRATION }
+  );
+};
+
+export { generateAccessToken, generateRefreshToken };
