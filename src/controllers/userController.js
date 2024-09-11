@@ -31,29 +31,31 @@ const userController = () => {
         if (err) {
           next(err)
         }
-        const user = await prisma.users.create({
-          data: {
-            ...req.body,
-            password: hashedPassword,
-            state: '1',
-            image_Url: req.file.location,
-            created_dateTime: new Date(),
-            updated_dateTime: null
-          },
-        });
-        return res.status(HTTP_STATUS.CREATED).json({
-          success: true,
-          message: 'User created successfully',
-          data: user,
-        });
+        try{
+          const user = await prisma.users.create({
+            data: {
+              ...req.body,
+              password: hashedPassword,
+              state: '1',
+              image_Url: req.file.location,
+              created_dateTime: new Date(),
+              updated_dateTime: null
+            },
+          });
+          return res.status(HTTP_STATUS.CREATED).json({
+            success: true,
+            message: 'User created successfully',
+            data: user,
+          });
+        }catch(error){
+           return next(error)
+        }
       })
     } catch (error) {
       next(error);
     } finally {
       await prisma.$disconnect();
     }
-
-
   }
 
   const getUsers = async (req, res, next) => {
