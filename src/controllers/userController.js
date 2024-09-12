@@ -4,7 +4,7 @@ import { generateAccessToken, generateRefreshToken } from '../utils/tokenManagme
 import { createUserSchema, idUserSchema, updateUserSchema } from '../schemas/userSchemas.js';
 import HTTP_STATUS from '../helpers/httpstatus.js';
 import { verifyToken } from '../utils/jwtUtils.js';
-import { upload } from '../utils/uploadFile.js';
+import  upload  from '../utils/uploadFile.js';
 import { deleteFile } from '../utils/s3.js'
 
 const prisma = new PrismaClient();
@@ -15,48 +15,52 @@ const userController = () => {
     if (validationError) {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: validationError.details[0].message });
     }
+  
     const { email, password } = req.body;
+  
     try {
       const existingUser = await prisma.users.findUnique({
         where: { email }
       });
-
+  
       if (existingUser) {
         return res.status(HTTP_STATUS.CONFLICT).json({ error: 'Email is already in use' });
       }
-
+  
       const hashedPassword = await encrypt(password);
-
+  
       upload(req, res, async (err) => {
         if (err) {
-          next(err)
+          return next(err);
         }
-        try{
+        
+        try {
           const user = await prisma.users.create({
             data: {
               ...req.body,
               password: hashedPassword,
               state: '1',
-              image_Url: req.file.location,
-              created_dateTime: new Date(),
-              updated_dateTime: null
+              image_Url: req.file.location, 
+              created_At_dateTime: new Date(),
+              updated_At_dateTime: null
             },
           });
+  
           return res.status(HTTP_STATUS.CREATED).json({
             success: true,
             message: 'User created successfully',
             data: user,
           });
-        }catch(error){
-           return next(error)
+        } catch (error) {
+          return next(error);
         }
-      })
+      });
     } catch (error) {
       next(error);
     } finally {
       await prisma.$disconnect();
     }
-  }
+  };
 
   const getUsers = async (_req, res, next) => {
     try {
