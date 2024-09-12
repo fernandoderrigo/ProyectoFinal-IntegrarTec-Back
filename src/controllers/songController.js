@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import HTTP_STATUS from "../helpers/httpstatus";
 import { upload } from "../utils/s3";
 import { deleteFile } from "../utils/s3";
+import { createSongSchema, idSongSchema, nameSongSchema, updateSongSchema } from "../schemas/songSchema";
 
 const prisma = new PrismaClient();
 

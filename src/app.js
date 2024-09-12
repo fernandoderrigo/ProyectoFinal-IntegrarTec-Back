@@ -7,6 +7,7 @@ const app = express();
 
 app.use(express.json());
 app.use('/users', userRoutes);
-app.use('/user-history',verifyMiddleware, userHistoryRoutes);
+app.use('/user-history', verifyMiddleware, userHistoryRoutes);
+app.use('/songs', songRoutes);
 
 export default app;
