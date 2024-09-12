@@ -1,26 +1,22 @@
 import { PrismaClient } from "@prisma/client";
-import HTTP_STATUS from "../helpers/httpstatus";
-import { upload } from "../utils/s3";
-import { deleteFile } from "../utils/s3";
-import { createSongSchema, idSongSchema, nameSongSchema, updateSongSchema } from "../schemas/songSchema";
+import HTTP_STATUS from "../helpers/httpstatus.js";
+import { uploadFile, deleteFile } from "../utils/s3.js";
+import { createSongSchema, idSongSchema, nameSongSchema, updateSongSchema } from "../schemas/songSchema.js";
 
 const prisma = new PrismaClient();
 
-export const songController = () => {
+const songController = () => {
     const createSong = async (req, res, next) => {
-        //Validacion de datos recibidos
         const { error: validationError } = createSongSchema.validate(req.body);
         if (validationError) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: validationError.details[0].message });
         }
         try {
-            //Subida de imagen a S3
-            upload(req, res, async (error) => {
+            uploadFile(req, res, async (error) => {
                 if (error) {
                     next(error)
                 }
                 try {
-                    //Creacion de cancion
                     const song = await prisma.songs.create({
                         data: {
                             ...req.body,
@@ -145,3 +141,5 @@ export const songController = () => {
         deleteSong
     }
 } 
+
+export default songController;

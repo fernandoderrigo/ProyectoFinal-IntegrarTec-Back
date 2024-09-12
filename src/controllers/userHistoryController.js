@@ -51,14 +51,23 @@ const userHistoryController = () => {
     const { userId } = req.params;
 
     try {
-      const userHistory = await prisma.history_User.findMany({
-        where: {
-          id_user: parseInt(userId),
-        },
-        orderBy: {
-          date: 'desc',
+        const userExists = await prisma.users.findUnique({
+            where: {
+                id: userId,
+            },
+        });
+
+        if (!userExists) {
+            return res.status(HTTP_STATUS.NOT_FOUND).json({ error: 'User not found' });
         }
-      });
+        const userHistory = await prisma.history_User.findMany({
+            where: {
+            id_user: parseInt(userId),
+            },
+            orderBy: {
+            date: 'desc',
+            }
+        });
 
       res.status(HTTP_STATUS.OK).json(userHistory);
     } catch (error) {
