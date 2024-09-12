@@ -13,7 +13,7 @@ export const songController = () => {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: validationError.details[0].message });
         }
         try {
-        //Subida de imagen a S3
+            //Subida de imagen a S3
             upload(req, res, async (error) => {
                 if (error) {
                     next(error)
@@ -44,7 +44,7 @@ export const songController = () => {
         }
     };
 
-    const getSongs = async(req,res,next) => {
+    const getSongs = async (_req, res, next) => {
         try {
             const songs = await prisma.songs.findMany();
             res.json(songs);
@@ -55,11 +55,86 @@ export const songController = () => {
         }
     };
 
-    const getSongByName = () => { };
+    const getSongByName = async (req, res, next) => {
+        const { error } = nameSongSchema.validate(req.params);
+        if (error) {
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: error.details[0].message });
+        }
+        try {
+            const song = await prisma.songs.findMany({
+                where: { name: parseInt(req.params.id) }
+            });
+            if (!song) {
+                return res.status(HTTP_STATUS.NOT_FOUND).json({ error: 'Song not found' });
+            }
+            res.json(song);
+        } catch (error) {
+            next(error);
+        } finally {
+            await prisma.$disconnect();
+        }
+    };
 
-    const updateSong = () => { };
+    const updateSong = async (req, res, next) => {
+        const { error: paramsError } = idSongSchema.validate(req.params);
+        if (paramsError) {
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: paramsError.details[0].message });
+        }
+        const { error: bodyError } = updateSongSchema.validate(req.body);
+        if (bodyError) {
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: bodyError.details[0].message });
+        }
+        try {
+            const song = await prisma.songs.findUnique({
+                where: { id: parseInt(req.params.id) }
+            });
+            if (!song) {
+                return res.status(HTTP_STATUS.NOT_FOUND).json({ error: 'Song not found' });
+            }
+            if (req.file) {
+                const deleteKey = song.image_Url.split('/').pop();
+                await deleteFile(deleteKey);
+                songData.image_Url = req.file.location
+            }
+            const songData = { ...req.body };
+            await prisma.songs.update({
+                where: { id: parseInt(req.params.id) },
+                data: songData
+            });
+            res.status(HTTP_STATUS.NO_CONTENT).send();
+        } catch (error) {
+            next(error);
+        } finally {
+            await prisma.$disconnect();
+        }
+    };
 
-    const deleteSong = () => { };
+    const deleteSong = async (req, res, next) => {
+        const { error } = idSongSchema.validate(req.params);
+        if (error) {
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: error.details[0].message });
+        }
+        try {
+            const song = await prisma.songs.findUnique({
+                where: { id: parseInt(req.params.id) }
+            });
+            if (!song) {
+                return res.status(HTTP_STATUS.NOT_FOUND).json({ error: 'Song not found' });
+            }
+            await prisma.songs.delete({
+                where: { id: parseInt(req.params.id) }
+            });
+            const deleteKey = song.image_Url.split('/').pop();
+            await deleteFile(deleteKey);
+
+            res.status(HTTP_STATUS.NO_CONTENT).send();
+        } catch (error) {
+            next(error);
+        }
+        finally {
+            await prisma.$disconnect()
+        }
+    };
 
     return {
         createSong,
