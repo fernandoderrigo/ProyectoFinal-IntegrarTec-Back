@@ -25,6 +25,6 @@ const upload = multer({
         })
        }
     }
-}).single('file')
+}).single('image_Url')
 
 export default upload;

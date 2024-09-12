@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import verifyMiddleware from '../middlewares/verifyMiddleware.js';
 import { schemaValidator } from '../middlewares/schemaValidator.js';
-import { createUserSchema, idUserSchema, updateUserSchema } from '../schemas/userSchemas.js';
+import {idUserSchema } from '../schemas/userSchemas.js';
 import userController  from '../controllers/userController.js';
 
 const router = Router();
@@ -9,11 +9,11 @@ const { createUser, getUsers, getUserById, updateUser, deleteUser, loginUser, re
 
 router.route('/')
   .get(getUsers)
-  .post(schemaValidator(createUserSchema), createUser)
+  .post(createUser)
 
 router.route('/:id')
   .get(schemaValidator(idUserSchema), getUserById)
-  .put(verifyMiddleware, schemaValidator(updateUserSchema), updateUser)
+  .put(verifyMiddleware,updateUser)
   .delete(verifyMiddleware,schemaValidator(idUserSchema), deleteUser)
 
 router.route('/login')
