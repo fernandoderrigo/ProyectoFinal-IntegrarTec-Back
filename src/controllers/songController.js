@@ -44,7 +44,16 @@ export const songController = () => {
         }
     };
 
-    const getSong = () => { };
+    const getSongs = async(req,res,next) => {
+        try {
+            const songs = await prisma.songs.findMany();
+            res.json(songs);
+        } catch (error) {
+            next(error);
+        } finally {
+            await prisma.$disconnect();
+        }
+    };
 
     const getSongByName = () => { };
 
@@ -54,7 +63,7 @@ export const songController = () => {
 
     return {
         createSong,
-        getSong,
+        getSongs,
         getSongByName,
         updateSong,
         deleteSong
