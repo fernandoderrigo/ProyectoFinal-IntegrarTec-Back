@@ -5,15 +5,16 @@ import songController from "../controllers/songController.js";
 import { createSongSchema, idSongSchema, nameSongSchema, updateSongSchema } from "../schemas/songSchema.js";
 
 const router = Router();
-const { createSong, getSongs, getSongByName, updateSong, deleteSong } = songController();
+const { createSong, getSongs, getSongByName,getSongById, updateSong, deleteSong } = songController();
 
 router.route('/')
     .get(getSongs)
-    .post(schemaValidator(createSongSchema), createSong)
+    .post(createSong)
 
 router.route('/:id')
-    .put(verifyMiddleware, schemaValidator(updateSongSchema), updateSong)
-    .delete(verifyMiddleware, schemaValidator(idSongSchema), deleteSong)
+    .put(schemaValidator(updateSongSchema), updateSong)
+    .get(getSongById)
+    .delete(schemaValidator(idSongSchema), deleteSong)
 
 router.route('/:name')
     .get(schemaValidator(nameSongSchema),getSongByName);
