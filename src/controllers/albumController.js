@@ -144,7 +144,7 @@ const albumController = () => {
         try {
             const albums = await prisma.albums.findMany({
                 include: {
-                    songs: true // Incluye las canciones relacionadas
+                    songs: true
                 }
             });
 
