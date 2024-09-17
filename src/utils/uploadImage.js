@@ -4,7 +4,7 @@ import {s3}  from './s3.js'
 
 const MYMETYPES = ['image/png','image/jpeg','image/jpg','image/svg']
 
-const upload = multer({
+const uploadImage = multer({
     storage: multerS3({
         s3: s3,
         bucket: process.env.BUCKET_NAME,
@@ -27,4 +27,4 @@ const upload = multer({
     }
 }).single('image_Url')
 
-export default upload;
+export default uploadImage;

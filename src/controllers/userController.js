@@ -4,14 +4,14 @@ import { generateAccessToken, generateRefreshToken } from '../utils/tokenManagme
 import { createUserSchema, idUserSchema, updateUserSchema } from '../schemas/userSchemas.js';
 import HTTP_STATUS from '../helpers/httpstatus.js';
 import { verifyToken } from '../utils/jwtUtils.js';
-import  upload  from '../utils/uploadFile.js';
+import  uploadImage  from '../utils/uploadImage.js';
 import { deleteFile } from '../utils/s3.js'
 
 const prisma = new PrismaClient();
 
 const userController = () => {
   const createUser = async (req, res, next) => {
-    upload(req, res, async (err) => {
+    uploadImage(req, res, async (err) => {
       if (err) {
         return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Error uploading file' });
       }

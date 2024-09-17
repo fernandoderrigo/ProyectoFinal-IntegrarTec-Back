@@ -1,14 +1,14 @@
 import { PrismaClient } from "@prisma/client";
 import { createAlbumSchema } from '../schemas/albumSchema.js';
 import HTTP_STATUS from '../helpers/httpstatus.js'; 
-import upload from '../utils/uploadFile.js';  
+import uploadImage from '../utils/uploadImage.js';  
 import { deleteFile } from '../utils/s3.js';  
 
 const prisma = new PrismaClient();
 
 const albumController = () => {
     const createAlbum = async (req, res, next) => {
-        upload(req, res, async (err) => {
+        uploadImage(req, res, async (err) => {
             if (err) {
                 console.error('Upload error:', err); // Registro para errores de carga
            

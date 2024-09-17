@@ -33,4 +33,4 @@ const getFile = (key) => {
   }).promise()
 }
 
-export {deleteFile,uploadFile, getFile, s3 }
+export { deleteFile, uploadFile, getFile, s3 }
