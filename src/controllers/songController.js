@@ -82,12 +82,12 @@ const songController = () => {
         try {
             const songs = await prisma.songs.findMany({
                 include: {
-                    artists: {
+                    artistsOnSongs: {
                         include: {
-                            artist: true,
+                            artists: true,
                         },
                     },
-                    album: true,
+                    albums: true,
                 },
             });
             res.json(songs);
@@ -108,12 +108,12 @@ const songController = () => {
             const song = await prisma.songs.findUnique({
                 where: { id: parseInt(req.params.id) },
                 include: {
-                    artists: {
+                    artistsOnSongs: {
                         include: {
-                            artist: true,
+                            artists: true,
                         },
                     },
-                    album: true,
+                    albums: true,
                 },
             });
     
@@ -141,8 +141,8 @@ const songController = () => {
             const songs = await prisma.songs.findMany({
                 where: { name: req.params.name },
                 include: {
-                    artist: true,
-                    album: true,
+                    artists: true,
+                    albums: true,
                 }
             });
             if (!songs || songs.length === 0) {
@@ -172,7 +172,7 @@ const songController = () => {
             try {
                 const song = await prisma.songs.findUnique({
                     where: { id: songId },
-                    include: { artists: true, album: true }
+                    include: { artists: true, albums: true }
                 });
                 if (!song) {
                     return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "Song not found" });
@@ -210,7 +210,7 @@ const songController = () => {
                     },
                     include: {
                         artists: true,
-                        album: true,
+                        albums: true,
                     },
                 });
     
