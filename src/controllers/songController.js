@@ -51,6 +51,7 @@ const songController = () => {
                         gender: req.body.gender,
                         release_Date: new Date(req.body.release_Date),
                         image_Url: req.file.location,
+                        audio_Url: req.file.location,
                         created_At_Datetime: new Date(),
                         updated_At_Datetime: null,
                         album: req.body.albumId ? { connect: { id: req.body.albumId } } : undefined,

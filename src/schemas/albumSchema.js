@@ -5,5 +5,3 @@ export const createAlbumSchema = Joi.object({
     release_Date: Joi.date().required(),
     image_Url: Joi.string().optional()
 });
-
-
