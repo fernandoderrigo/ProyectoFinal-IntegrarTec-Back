@@ -129,7 +129,7 @@ const songController = () => {
                         },
                     },
                     albums: true,
-                },
+                }
             });
 
             if (!song) {
@@ -156,7 +156,11 @@ const songController = () => {
             const songs = await prisma.songs.findMany({
                 where: { name: req.params.name },
                 include: {
-                    artists: true,
+                    artistsOnSongs: {
+                        include: {
+                            artists: true,
+                        },
+                    },
                     albums: true,
                 }
             });
@@ -182,7 +186,7 @@ const songController = () => {
         try {
             const song = await prisma.songs.findUnique({
                 where: { id: songId },
-                include: { artists: true, albums: true }
+                include: { artistsOnSongs: true, albums: true }
             });
             if (!song) {
                 return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "Song not found" });
@@ -219,9 +223,13 @@ const songController = () => {
                     },
                 },
                 include: {
-                    artists: true,
+                    artistsOnSongs: {
+                        include: {
+                            artists: true,
+                        },
+                    },
                     albums: true,
-                },
+                }
             });
 
             return res.status(HTTP_STATUS.OK).json({
