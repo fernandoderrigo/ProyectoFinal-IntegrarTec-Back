@@ -9,6 +9,7 @@ import albumRoutes from './routes/albumRoutes.js';
 const app = express();
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use('/users', userRoutes);
 app.use('/user-history', verifyMiddleware, userHistoryRoutes);
 app.use('/songs', songRoutes);

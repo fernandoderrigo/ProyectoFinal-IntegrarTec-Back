@@ -21,7 +21,7 @@ const uploadMp3 = multer({
             cb(null, { fieldName: fileMp3.fieldname })
         },
         key: function (_req, fileMp3, cb) {
-            cb(null, Date.now().toString() + '-' + fileMp3.originalname)
+            cb(null, Date.now().toString() + '--' + fileMp3.originalname)
         },
     }),
     fileFilter: function (_req, fileMp3, cb) {
@@ -36,6 +36,6 @@ const uploadMp3 = multer({
     limits: {
         fileSize: 6000000
     }
-}).single('track')
+}).single('audio_Url')
 
 export default uploadMp3;
