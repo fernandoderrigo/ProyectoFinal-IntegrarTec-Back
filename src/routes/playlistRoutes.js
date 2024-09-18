@@ -2,7 +2,7 @@ import { Router } from "express";
 import playlistController from "../controllers/playlistController";
 
 const router = Router();
-const {createPlaylist, getPlaylists, getPlaylistsByName, updatePlaylist, deletePlaylist} = playlistController();
+const { createPlaylist, getPlaylists, getPlaylistsByName, updatePlaylist, deletePlaylist } = playlistController();
 
 router.route('/')
     .get(getPlaylists)
@@ -14,3 +14,5 @@ router.route('/:id')
 
 router.route('/:name')
     .get(getPlaylistsByName)
+
+export default router;
