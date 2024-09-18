@@ -12,7 +12,9 @@ const uploadImage = multer({
             cb(null, { fieldName: file.fieldname })
         },
         key: function (_req, file, cb) {
-            cb(null, Date.now().toString() + '-' + file.originalname) 
+            const folderName = 'images/';
+            const fileName = Date.now().toString() + '-' + file.originalname;
+            cb(null,folderName + fileName); 
         },
     }),
     limits: { fileSize: 20000000 },
