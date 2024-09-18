@@ -71,7 +71,7 @@ const albumController = () => {
         upload(req, res, async (err) => {
             if (err) {
                 return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Error uploading file: ' + err.message });
-            }
+            };
 
             const { albumId } = req.params;
             const { error: validationError } = createAlbumSchema.validate(req.body);
@@ -116,7 +116,11 @@ const albumController = () => {
                     },
                 });
 
-                return res.status(HTTP_STATUS.OK).send();
+                return res.status(HTTP_STATUS.OK).send({
+                    success: true,
+                    message: 'Album update successfully',
+                    data: updatedAlbum
+                });
             } catch (error) {
                 next(error);
             } finally {
