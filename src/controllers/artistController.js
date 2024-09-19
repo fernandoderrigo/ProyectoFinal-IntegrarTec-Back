@@ -89,11 +89,11 @@ const artistController = () => {
     };
 
     const getArtistById = async (req, res, next) => {
-        const { artistId } = req.params;
+        const { id } = req.params;
 
         try {
             const artist = await prisma.artists.findUnique({
-                where: { id: parseInt(artistId) }
+                where: { id: parseInt(id) }
             });
 
             if (!artist) {
@@ -115,11 +115,11 @@ const artistController = () => {
     };
 
     const deleteArtist = async (req, res, next) => {
-        const { artistId } = req.params;
+        const { id } = req.params;
 
         try {
             const artist = await prisma.artists.delete({
-                where: { id: parseInt(artistId) }
+                where: { id: parseInt(id) }
             });
 
             if (!artist) {
