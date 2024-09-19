@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { createAlbumSchema } from '../schemas/albumSchema.js';
+import { createAlbumSchema, updateAlbumSchema } from '../schemas/albumSchema.js';
 import HTTP_STATUS from '../helpers/httpstatus.js'; 
 import uploadImage from '../utils/uploadImage.js';  
 import { deleteFile } from '../utils/s3.js';  
@@ -74,7 +74,7 @@ const albumController = () => {
             };
 
             const { albumId } = req.params;
-            const { error: validationError } = createAlbumSchema.validate(req.body);
+            const { error: validationError } = updateAlbumSchema.validate(req.body);
             if (validationError) {
                 return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: validationError.details[0].message });
             }
