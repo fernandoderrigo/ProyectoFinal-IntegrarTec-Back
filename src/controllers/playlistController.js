@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import HTTP_STATUS from '../helpers/httpstatus.js';
-import { createPlaylistSchema, updatePlaylistSchema, namePlaylistSchema, idPlaylistSchema } from '../schemas/playlistSchema.js';
+import { createPlaylistSchema, updatePlaylistSchema, namePlaylistSchema } from '../schemas/playlistSchema.js';
 
 const prisma = new PrismaClient();
 
@@ -59,7 +59,7 @@ const playlistController = () => {
         finally {
             await prisma.$disconnect();
         }
-    }
+    };
 
     const updatePlaylist = async (req, res, next) => {
         const { error } = updatePlaylistSchema.validate(req.body);
@@ -124,7 +124,7 @@ const playlistController = () => {
             await prisma.$disconnect();
         }
 
-    }
+    };
 
     const getPlaylists = async (req, res, next) => {
         try {
@@ -142,7 +142,7 @@ const playlistController = () => {
         } finally {
             await prisma.$disconnect();
         }
-    }
+    };
 
     const getPlaylistByName = async (req, res, next) => {
         const { error } = namePlaylistSchema.validate(req.params);
@@ -170,7 +170,7 @@ const playlistController = () => {
         finally {
             await prisma.$disconnect();
         }
-    }
+    };
 
     const deletePlaylist = async (req, res, next) => {
         const { playlistId } = req.params;
@@ -192,7 +192,7 @@ const playlistController = () => {
         finally {
             await prisma.$disconnect();
         }
-    }
+    };
 
     return {
         createPlaylist,
