@@ -4,7 +4,7 @@ import {s3}  from './s3.js'
 
 const MYMETYPES = ['image/png','image/jpeg','image/jpg','image/svg']
 
-const upload = multer({
+const uploadImage = multer({
     storage: multerS3({
         s3: s3,
         bucket: process.env.BUCKET_NAME,
@@ -12,7 +12,9 @@ const upload = multer({
             cb(null, { fieldName: file.fieldname })
         },
         key: function (_req, file, cb) {
-            cb(null, Date.now().toString() + '-' + file.originalname) 
+            const folderName = 'images/';
+            const fileName = Date.now().toString() + '-' + file.originalname;
+            cb(null,folderName + fileName); 
         },
     }),
     limits: { fileSize: 20000000 },
@@ -27,4 +29,4 @@ const upload = multer({
     }
 }).single('image_Url')
 
-export default upload;
+export default uploadImage;

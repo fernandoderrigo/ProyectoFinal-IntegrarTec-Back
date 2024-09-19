@@ -1,13 +1,16 @@
 import { Router } from "express";
-import { schemaValidator } from "../middlewares/schemaValidator.js";
 import artistController from "../controllers/artistController.js";
-import { createArtistSchema } from "../schemas/artistSchema.js";
 
 const router = Router();
-const { createArtist, getAllArtists } = artistController();
+const { createArtist, getAllArtists, getArtistById, deleteArtist, updateArtist } = artistController();
 
 router.route('/')
     .get(getAllArtists)
-    .post(schemaValidator(createArtistSchema), createArtist)
+    .post(createArtist)
+
+router.route('/:id')
+    .get(getArtistById)
+    .put(updateArtist)
+    .delete(deleteArtist)
 
 export default router

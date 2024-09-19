@@ -1,25 +1,31 @@
 import { PrismaClient } from "@prisma/client";
-import { createAlbumSchema } from '../schemas/albumSchema.js';
+import { createAlbumSchema, updateAlbumSchema } from '../schemas/albumSchema.js';
 import HTTP_STATUS from '../helpers/httpstatus.js'; 
-import upload from '../utils/uploadFile.js';  
+import uploadImage from '../utils/uploadImage.js';  
 import { deleteFile } from '../utils/s3.js';  
 
 const prisma = new PrismaClient();
 
 const albumController = () => {
     const createAlbum = async (req, res, next) => {
-        upload(req, res, async (err) => {
+        uploadImage(req, res, async (err) => {
             if (err) {
+                console.error('Upload error:', err); // Registro para errores de carga
+           
                 return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Error uploading file: ' + err.message });
             }
             
             const { error: validationError } = createAlbumSchema.validate(req.body);
             if (validationError) {
+                console.error('Validation error:', validationError.details[0].message); // Registro para errores de validación
+          
                 return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: validationError.details[0].message });
             }
     
             try {
                 if (!req.file || !req.file.location) {
+                    console.error('File upload failed or file location is undefined'); // Registro para verificar ubicación del archivo
+             
                     return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'File upload failed or file location is undefined' });
                 }
     
@@ -28,6 +34,8 @@ const albumController = () => {
                 });
     
                 if (existingAlbum) {
+                    console.error('Album with this name already exists'); // Registro para verificar álbum existente
+              
                     return res.status(HTTP_STATUS.BAD_REQUEST).json({
                         error: 'An album with this name already exists'
                     });
@@ -51,6 +59,7 @@ const albumController = () => {
                     data: album
                 });
             } catch (error) {
+                console.error('Error creating album:', error); // Registro para errores en la creación del álbum
                 next(error);
             } finally {
                 await prisma.$disconnect();
@@ -62,10 +71,10 @@ const albumController = () => {
         upload(req, res, async (err) => {
             if (err) {
                 return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Error uploading file: ' + err.message });
-            }
+            };
 
             const { albumId } = req.params;
-            const { error: validationError } = createAlbumSchema.validate(req.body);
+            const { error: validationError } = updateAlbumSchema.validate(req.body);
             if (validationError) {
                 return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: validationError.details[0].message });
             }
@@ -107,7 +116,11 @@ const albumController = () => {
                     },
                 });
 
-                return res.status(HTTP_STATUS.OK).send();
+                return res.status(HTTP_STATUS.OK).send({
+                    success: true,
+                    message: 'Album update successfully',
+                    data: updatedAlbum
+                });
             } catch (error) {
                 next(error);
             } finally {

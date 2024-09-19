@@ -4,8 +4,9 @@ export const createSongSchema = Joi.object({
     name: Joi.string().min(3).max(100).required(),
     duration: Joi.number().required(),
     gender: Joi.string().valid('Pop', 'Rock', 'Hip-Hop', 'Jazz', 'Classical').required(),
-    release_Date: Joi.date().required(),
+    release_Date: Joi.date().iso().required(),
     image_Url: Joi.string().optional(),
+    audio_Url: Joi.string(),
     albumId: Joi.number().integer().optional(), 
     artistIds: Joi.string()
         .pattern(/^\d+(,\d+)*$/) 
@@ -24,8 +25,9 @@ export const updateSongSchema = Joi.object({
     albumId: Joi.number().optional().allow(null),   
     duration: Joi.number().optional(),
     gender: Joi.string().optional(),
-    image_Ur: Joi.string().optional(),  
-    release_Date: Joi.date().optional(),
+    image_Ur: Joi.string().optional(),
+    audio_Url: Joi.string().optional(),  
+    release_Date: Joi.date().iso().optional(),
     state: Joi.string().valid('0', '1').optional(),
 });
 
