@@ -11,15 +11,16 @@ const playlistController = () => {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: error.details[0].message });
         }
 
-        req.body.id_usuario = parseInt(req.body.id_usuario, 10);
+        req.body.id_user = parseInt(req.body.id_user, 10);
+
         const { error: validationError } = createPlaylistSchema.validate(req.body);
         if (validationError) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: validationError.details[0].message });
         }
         try {
-            if (req.body.id_usuario) {
+            if (req.body.id_user) {
                 const userExists = await prisma.users.findUnique({
-                    where: { id: req.body.id_usuario },
+                    where: { id: req.body.id_user },
                 });
                 if (!userExists) {
                     return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "User not found" });
@@ -28,19 +29,18 @@ const playlistController = () => {
             const playlist = await prisma.playlists.create({
                 data: {
                     name: req.body.name,
-                    id_usuario: req.body.id_usuario,
                     created_At_Datetime: new Date(),
                     updated_At_Datetime: null,
-                    user: req.body.id_usuario ? { connect: { id: req.body.id_usuario } } : undefined,
-                    songsInPlaylists: {
+                    users: req.body.id_user ? { connect: { id: req.body.id_user } } : undefined,
+                    song_in_playlist: {
                         create: req.body.songs.map(songId => ({
                             songs: { connect: { id: songId } }
                         }))
                     }
                 },
                 include: {
-                    user: true,
-                    songsInPlaylists: {
+                    users: true,
+                    song_in_playlist: {
                         include: {
                             songs: true
                         }
@@ -73,8 +73,8 @@ const playlistController = () => {
             const playlist = await prisma.playlists.findUnique({
                 where: { id: playlistId },
                 include: {
-                    user: true,
-                    songsInPlaylists: {
+                    users: true,
+                    song_in_playlist: {
                         include: {
                             songs: true
                         }
@@ -95,9 +95,9 @@ const playlistController = () => {
                 where: { id: playlistId },
                 data: {
                     name: updatedData.name || playlist.name,
-                    id_usuario: updatedData.id_usuario || playlist.id_usuario,
-                    user: updatedData.id_usuario ? { connect: { id: updatedData.id_usuario } } : undefined,
-                    songsInPlaylists: {
+                    id_user: updatedData.id_user || playlist.id_user,
+                    user: updatedData.id_user ? { connect: { id: updatedData.id_user } } : undefined,
+                    song_in_playlist: {
                         deleteMany: {},
                         create: req.body.songs.map(songId => ({
                             songs: { connect: { id: songId } }
@@ -106,7 +106,7 @@ const playlistController = () => {
                 },
                 include: {
                     user: true,
-                    songsInPlaylists: {
+                    song_in_playlist: {
                         include: {
                             songs: true
                         }
@@ -130,10 +130,12 @@ const playlistController = () => {
         try {
             const playlists = await prisma.playlists.findMany({
                 include: {
-                    user: true
-                },
-                songsInPlaylists: {
-                    songs: true
+                    users: true,
+                    song_in_playlist: {
+                        include: {
+                            songs: true
+                        }
+                    }
                 }
             });
             res.json(playlists);
@@ -153,10 +155,12 @@ const playlistController = () => {
             const playlists = await prisma.playlists.findMany({
                 where: { name: req.params.name },
                 include: {
-                    user: true
-                },
-                songsInPlaylists: {
-                    songs: true
+                    users: true,
+                    song_in_playlist: {
+                        include: {
+                            songs: true
+                        }
+                    }
                 }
             });
             if (!playlists || playlists.length === 0) {
