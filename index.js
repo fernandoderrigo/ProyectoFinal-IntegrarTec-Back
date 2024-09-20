@@ -3,8 +3,6 @@ import express from 'express';
 import cors from 'cors';
 import app from './src/app.js';
 import errorHandler from './src/middlewares/errorHandler.js';
-import './src/cronJobs.js'; 
-
 
 dotenv.config(); 
 
