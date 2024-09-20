@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 cron.schedule('0 0 * * *', async () => {
-  console.log('Iniciando tarea diaria para recopilar y actualizar preferencias de usuario...');
+  console.log('Starting daily task to collect and update user preferences...');
 
   try {
     const users = await prisma.users.findMany();
@@ -65,9 +65,9 @@ cron.schedule('0 0 * * *', async () => {
       });
     }
 
-    console.log('Preferencias actualizadas con éxito para todos los usuarios.');
+    console.log('Preferences successfully updated for all users.');
   } catch (error) {
-    console.error('Error al actualizar preferencias:', error);
+    console.error('Error updating preferences:', error);
   }
 });
 
