@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id                  Int            @id @default(autoincrement())
+  email               String         @unique
+  password            String
+  state               String         @default("1")
+  birthDay_date       DateTime
+  first_Name          String
+  last_Name           String
+  nick_Name           String         @unique
+  image_Url           String?
+  created_At_dateTime DateTime       @default(now())
+  updated_At_dateTime DateTime?      @updatedAt
+  history             History_User[]
+  playlists           Playlists[]
+  preferences         Preferences? 
+
+  @@map("users")
+}
+
+model Playlists {
+  id                  Int                @id @default(autoincrement())
+  name                String
+  created_At_Datetime DateTime           @default(now())
+  updated_At_Datetime DateTime?          @updatedAt
+  id_user             Int
+  users               Users              @relation(fields: [id_user], references: [id])
+  songs               Song_In_Playlist[]
+
+  @@map("playlists")
+}
+
+model Songs {
+  id                  Int                @id @default(autoincrement())
+  name                String
+  duration            String
+  gender              String
+  image_Url           String
+  audio_Url           String
+  release_Date        DateTime
+  state               String             @default("1")
+  created_At_Datetime DateTime           @default(now())
+  updated_At_Datetime DateTime?          @updatedAt
+  albumId             Int?
+  artists             ArtistsOnSongs[]
+  history             History_User[]
+  playlists           Song_In_Playlist[]
+  album               Albums?            @relation(fields: [albumId], references: [id])
+  users_favorites     Preferences[]      @relation("UserFavoriteSongs") 
+
+  @@map("songs")
+}
+
+model Albums {
+  id                  Int       @id @default(autoincrement())
+  name                String
+  release_Date        DateTime
+  image_Url           String
+  created_At_Datetime DateTime  @default(now())
+  updated_At_Datetime DateTime? @updatedAt
+  songs               Songs[]
+
+  @@map("albums")
+}
+
+model Artists {
+  id    Int              @id @default(autoincrement())
+  name  String           @unique
+  songs ArtistsOnSongs[]
+
+  @@map("artists")
+}
+
+model ArtistsOnSongs {
+  songId   Int
+  artistId Int
+  artist   Artists @relation(fields: [artistId], references: [id])
+  song     Songs   @relation(fields: [songId], references: [id])
+
+  @@id([songId, artistId])
+  @@map("artists_on_songs")
+}
+
+model Song_In_Playlist {
+  id_Playlist Int
+  id_Song     Int
+  id          Int       @id @default(autoincrement())
+  playlist    Playlists @relation(fields: [id_Playlist], references: [id])
+  song        Songs     @relation(fields: [id_Song], references: [id])
+
+  @@unique([id_Playlist, id_Song])
+  @@map("song_in_playlist")
+}
+
+model History_User {
+  id_user Int
+  id_song Int
+  date    DateTime @default(now())
+  song    Songs    @relation(fields: [id_song], references: [id])
+  user    Users    @relation(fields: [id_user], references: [id])
+
+  @@id([id_user, id_song, date])
+  @@map("history_user")
+}
+
+model Preferences {
+  id_user        Int       @id
+  genders_fav    String[]
+  artists_fav    String[]
+  favorite_songs Songs[]   @relation("UserFavoriteSongs") 
+
+  user           Users      @relation(fields: [id_user], references: [id]) 
+
+  @@map("preferences")
+}
