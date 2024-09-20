@@ -10,13 +10,14 @@ const playlistController = () => {
         if (error) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: error.details[0].message });
         }
-
+    
         req.body.id_user = parseInt(req.body.id_user, 10);
-
+    
         const { error: validationError } = createPlaylistSchema.validate(req.body);
         if (validationError) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: validationError.details[0].message });
         }
+        
         try {
             if (req.body.id_user) {
                 const userExists = await prisma.users.findUnique({
@@ -26,37 +27,46 @@ const playlistController = () => {
                     return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "User not found" });
                 }
             }
+            
+            const songChecks = await Promise.all(req.body.songs.map(async (songId) => {
+                return await prisma.songs.findUnique({ where: { id: songId } });
+            }));
+
+            const missingSongs = songChecks.filter(song => !song);
+            if (missingSongs.length > 0) {
+                return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "One or more songs not found" });
+            }
+
             const playlist = await prisma.playlists.create({
                 data: {
                     name: req.body.name,
                     created_At_Datetime: new Date(),
                     updated_At_Datetime: null,
                     users: req.body.id_user ? { connect: { id: req.body.id_user } } : undefined,
-                    song_in_playlist: {
+                    songs: {
                         create: req.body.songs.map(songId => ({
-                            songs: { connect: { id: songId } }
+                            song: { connect: { id: songId } }
                         }))
                     }
                 },
                 include: {
                     users: true,
-                    song_in_playlist: {
+                    songs: {
                         include: {
-                            songs: true
+                            song: true
                         }
                     }
                 }
             });
+    
             return res.status(HTTP_STATUS.CREATED).json({
                 success: true,
                 message: 'Playlist created successfully',
                 data: playlist,
             });
-        }
-        catch (error) {
+        } catch (error) {
             next(error);
-        }
-        finally {
+        } finally {
             await prisma.$disconnect();
         }
     };
@@ -66,15 +76,15 @@ const playlistController = () => {
         if (error) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: error.details[0].message });
         }
-
+    
         const playlistId = parseInt(req.params.id, 10);
-
+    
         try {
             const playlist = await prisma.playlists.findUnique({
                 where: { id: playlistId },
                 include: {
                     users: true,
-                    song_in_playlist: {
+                    songs: {
                         include: {
                             songs: true
                         }
@@ -84,46 +94,50 @@ const playlistController = () => {
             if (!playlist) {
                 return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "Playlist not found" });
             }
+            
+            const songChecks = await Promise.all(req.body.songs.map(async (songId) => {
+                return await prisma.songs.findUnique({ where: { id: songId } });
+            }));
+    
+            const missingSongs = songChecks.filter(song => !song);
+            if (missingSongs.length > 0) {
+                return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "One or more songs not found" });
+            }
 
             const updatedData = {
                 ...playlist,
                 ...req.body,
                 updated_At_Datetime: new Date()
             };
-
-            const updatedPlaylist = await prisma.playlists.update({
+    
+            await prisma.playlists.update({
                 where: { id: playlistId },
                 data: {
                     name: updatedData.name || playlist.name,
                     id_user: updatedData.id_user || playlist.id_user,
                     user: updatedData.id_user ? { connect: { id: updatedData.id_user } } : undefined,
-                    song_in_playlist: {
-                        deleteMany: {},
+                    songs: { 
+                        deleteMany: {}, 
                         create: req.body.songs.map(songId => ({
-                            songs: { connect: { id: songId } }
+                            song: { connect: { id: songId } }
                         }))
                     }
                 },
                 include: {
                     user: true,
-                    song_in_playlist: {
+                    songs: { 
                         include: {
-                            songs: true
+                            song: true
                         }
                     }
                 }
             });
-            return res.status(HTTP_STATUS.OK).json({
-                success: true,
-                message: 'Playlist updated successfully',
-                data: updatedPlaylist,
-            });
+            return res.status(HTTP_STATUS.NO_CONTENT).send();
         } catch (error) {
-            next(error)
+            next(error);
         } finally {
             await prisma.$disconnect();
         }
-
     };
 
     const getPlaylists = async (req, res, next) => {
@@ -131,16 +145,16 @@ const playlistController = () => {
             const playlists = await prisma.playlists.findMany({
                 include: {
                     users: true,
-                    song_in_playlist: {
+                    songs: { 
                         include: {
-                            songs: true
+                            song: true
                         }
                     }
                 }
             });
             res.json(playlists);
         } catch (error) {
-            next(error)
+            next(error);
         } finally {
             await prisma.$disconnect();
         }
@@ -156,9 +170,9 @@ const playlistController = () => {
                 where: { name: req.params.name },
                 include: {
                     users: true,
-                    song_in_playlist: {
+                    songs: { 
                         include: {
-                            songs: true
+                            song: true
                         }
                     }
                 }
@@ -167,33 +181,36 @@ const playlistController = () => {
                 return res.status(HTTP_STATUS.NOT_FOUND).json({ error: 'Playlist not found' });
             }
             res.json(playlists);
-        }
-        catch (error) {
+        } catch (error) {
             next(error);
-        }
-        finally {
+        } finally {
             await prisma.$disconnect();
         }
     };
 
     const deletePlaylist = async (req, res, next) => {
-        const { playlistId } = req.params;
-
+        const playlistId = parseInt(req.params.id, 10);
+    
         try {
             const playlist = await prisma.playlists.findUnique({
                 where: { id: playlistId },
             });
+
             if (!playlist) {
                 return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "Playlist not found" });
             }
+
+            await prisma.Song_In_Playlist.deleteMany({
+                where: { id_Playlist: playlistId },
+            });
+
             await prisma.playlists.delete({
                 where: { id: playlistId },
-            })
-        }
-        catch (error) {
+            });
+            return res.status(HTTP_STATUS.NO_CONTENT).send();
+        } catch (error) {
             next(error);
-        }
-        finally {
+        } finally {
             await prisma.$disconnect();
         }
     };

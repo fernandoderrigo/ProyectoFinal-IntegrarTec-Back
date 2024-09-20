@@ -12,9 +12,9 @@ router.route('/')
     .post(createSong)
 
 router.route('/:id')
-    .put(schemaValidator(updateSongSchema), updateSong)
+    .put(updateSong)
     .get(getSongById)
-    .delete(schemaValidator(idSongSchema), deleteSong)
+    .delete(deleteSong)
 
 router.route('/:name')
     .get(schemaValidator(nameSongSchema),getSongByName);
