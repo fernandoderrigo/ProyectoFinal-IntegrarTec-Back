@@ -6,6 +6,7 @@ import songRoutes from './routes/songRoutes.js';
 import artistRoutes from './routes/artistRoutes.js';
 import albumRoutes from './routes/albumRoutes.js';
 import playlistRoutes from './routes/playlistRoutes.js';
+import preferences from './routes/preferenceRoutes.js';
 
 const app = express();
 
@@ -17,5 +18,6 @@ app.use('/songs', songRoutes);
 app.use('/artists', artistRoutes);
 app.use('/albums', albumRoutes);
 app.use('/playlists', playlistRoutes)
+app.use('/preferences-user',preferences)
 
 export default app;

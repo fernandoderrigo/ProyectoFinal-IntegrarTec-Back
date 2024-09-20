@@ -10,21 +10,20 @@ const albumController = () => {
     const createAlbum = async (req, res, next) => {
         uploadImage(req, res, async (err) => {
             if (err) {
-                console.error('Upload error:', err); // Registro para errores de carga
-           
+                console.error('Upload error:', err); 
                 return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Error uploading file: ' + err.message });
             }
             
             const { error: validationError } = createAlbumSchema.validate(req.body);
             if (validationError) {
-                console.error('Validation error:', validationError.details[0].message); // Registro para errores de validación
+                console.error('Validation error:', validationError.details[0].message); 
           
                 return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: validationError.details[0].message });
             }
     
             try {
                 if (!req.file || !req.file.location) {
-                    console.error('File upload failed or file location is undefined'); // Registro para verificar ubicación del archivo
+                    console.error('File upload failed or file location is undefined'); 
              
                     return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'File upload failed or file location is undefined' });
                 }
@@ -34,7 +33,7 @@ const albumController = () => {
                 });
     
                 if (existingAlbum) {
-                    console.error('Album with this name already exists'); // Registro para verificar álbum existente
+                    console.error('Album with this name already exists'); 
               
                     return res.status(HTTP_STATUS.BAD_REQUEST).json({
                         error: 'An album with this name already exists'
@@ -59,7 +58,7 @@ const albumController = () => {
                     data: album
                 });
             } catch (error) {
-                console.error('Error creating album:', error); // Registro para errores en la creación del álbum
+                console.error('Error creating album:', error); 
                 next(error);
             } finally {
                 await prisma.$disconnect();
@@ -107,7 +106,7 @@ const albumController = () => {
                     });
                 }
 
-                const updatedAlbum = await prisma.albums.update({
+                await prisma.albums.update({
                     where: { id: parseInt(albumId) },
                     data: {
                         ...req.body,
@@ -116,11 +115,7 @@ const albumController = () => {
                     },
                 });
 
-                return res.status(HTTP_STATUS.OK).send({
-                    success: true,
-                    message: 'Album update successfully',
-                    data: updatedAlbum
-                });
+                return res.status(HTTP_STATUS.NO_CONTENT).send();
             } catch (error) {
                 next(error);
             } finally {
@@ -145,7 +140,7 @@ const albumController = () => {
 
             await prisma.albums.delete({ where: { id: parseInt(albumId) } });
 
-            return res.status(HTTP_STATUS.OK).send();
+            return res.status(HTTP_STATUS.NO_CONTENT).send();
         } catch (error) {
             next(error);
         } finally {
