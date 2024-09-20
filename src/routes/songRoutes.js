@@ -1,8 +1,7 @@
 import { Router } from "express";
-import verifyMiddleware from '../middlewares/verifyMiddleware.js';
 import { schemaValidator } from "../middlewares/schemaValidator.js";
 import songController from "../controllers/songController.js";
-import { createSongSchema, idSongSchema, nameSongSchema, updateSongSchema } from "../schemas/songSchema.js";
+import {nameSongSchema} from "../schemas/songSchema.js";
 
 const router = Router();
 const { createSong, getSongs, getSongByName,getSongById, updateSong, deleteSong } = songController();

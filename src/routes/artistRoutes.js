@@ -1,16 +1,17 @@
 import { Router } from "express";
 import artistController from "../controllers/artistController.js";
+import verifyMiddleware from "../middlewares/verifyMiddleware.js"
 
 const router = Router();
 const { createArtist, getAllArtists, getArtistById, deleteArtist, updateArtist } = artistController();
 
 router.route('/')
     .get(getAllArtists)
-    .post(createArtist)
+    .post(verifyMiddleware,createArtist)
 
 router.route('/:id')
     .get(getArtistById)
-    .put(updateArtist)
-    .delete(deleteArtist)
+    .put(verifyMiddleware,updateArtist)
+    .delete(verifyMiddleware,deleteArtist)
 
 export default router

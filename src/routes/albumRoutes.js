@@ -1,16 +1,17 @@
 import { Router } from "express";
 import albumController from "../controllers/albumController.js";
+import verifyMiddleware from "../middlewares/verifyMiddleware.js"
 
 const router = Router();
 const { createAlbum, getAllAlbums, updateAlbum, deleteAlbum, getAlbumById} = albumController();
 
 router.route('/')
     .get(getAllAlbums)
-    .post(createAlbum)
+    .post(verifyMiddleware,createAlbum)
 
 router.route('/:id')
     .get(getAlbumById)
-    .delete(deleteAlbum)
-    .put(updateAlbum)
+    .delete(verifyMiddleware,deleteAlbum)
+    .put(verifyMiddleware,updateAlbum)
 
 export default router
