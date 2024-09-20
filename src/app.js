@@ -14,10 +14,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/users', userRoutes);
 app.use('/user-history', verifyMiddleware, userHistoryRoutes);
-app.use('/songs', songRoutes);
+app.use('/songs',verifyMiddleware, songRoutes);
 app.use('/artists', artistRoutes);
 app.use('/albums', albumRoutes);
-app.use('/playlists', playlistRoutes)
-app.use('/preferences-user',preferences)
+app.use('/playlists',verifyMiddleware, playlistRoutes)
+app.use('/preferences-user',verifyMiddleware,preferences)
 
 export default app;
