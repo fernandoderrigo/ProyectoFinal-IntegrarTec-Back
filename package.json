@@ -5,8 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-  "build": "prisma db pull --schema $PRISMA_SCHEMA && prisma generate --schema $PRISMA_SCHEMA",
-  "start": "node index.js"
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "",
