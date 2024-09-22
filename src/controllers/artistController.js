@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { createArtistSchema, updateAlbumSchema } from '../schemas/artistSchema.js';
+import { createArtistSchema, updateArtistSchema } from '../schemas/artistSchema.js';
 import HTTP_STATUS from '../helpers/httpstatus.js';
 
 const prisma = new PrismaClient();
@@ -42,28 +42,30 @@ const artistController = () => {
     };
 
     const updateArtist = async (req, res, next) => {
-        const { error: validationError } = updateAlbumSchema.validate(req.body);
+        const { error: validationError } = updateArtistSchema.validate(req.body);
         if (validationError) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: validationError.details[0].message });
         }
+        const artistId = parseInt(req.params.id, 10);
         try {
-            const existingArtist = await prisma.artists.findUnique({
-                where: { name: req.body.name }
+            const artist = await prisma.artists.findUnique({
+                where: { id: artistId },
+                include: { songs: true }
             });
-            if (!existingArtist) {
+            if (!artist) {
                 return res.status(HTTP_STATUS.NOT_FOUND).json({
                     success: false,
                     message: 'Artist not found'
                 });
             }
-            
+
             await prisma.artists.update({
-                where: { id: existingArtist.id },
+                where: { id: artistId },
                 data: {
                     name: req.body.name
                 }
             });
-           return res.status(HTTP_STATUS.NO_CONTENT).send();
+            return res.status(HTTP_STATUS.NO_CONTENT).send();
         } catch (error) {
             next(error)
         } finally {
@@ -112,7 +114,7 @@ const artistController = () => {
     };
 
     const deleteArtist = async (req, res, next) => {
-        const id  = parseInt(req.params.id,10);
+        const id = parseInt(req.params.id, 10);
         try {
 
             const artist = await prisma.artists.findUnique({ where: { id: id } });
