@@ -147,13 +147,14 @@ const songController = () => {
     };
 
     const getSongByName = async (req, res, next) => {
-        const { error } = nameSongSchema.validate(req.params);
+        const { name } = req.params
+        const { error } = nameSongSchema.validate(name);
         if (error) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: error.details[0].message });
         }
         try {
             const songs = await prisma.songs.findMany({
-                where: { name: req.params.name },
+                where: { name: name },
                 include: {
                     artists: {
                         include: {

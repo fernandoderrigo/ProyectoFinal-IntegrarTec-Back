@@ -15,7 +15,7 @@ router.route('/:id')
     .get(getSongById)
     .delete(deleteSong)
 
-router.route('/:name')
-    .get(schemaValidator(nameSongSchema),getSongByName);
+router.route('/name/:name')
+    .get(getSongByName);
 
 export default router
