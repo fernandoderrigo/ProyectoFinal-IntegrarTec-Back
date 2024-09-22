@@ -13,7 +13,7 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/', (req, res) => {
+app.get('/', (_req, res) => {
     const responseServer = {
         status: 200,
         app: "Escucha Facil",
