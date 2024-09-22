@@ -231,7 +231,11 @@ const songController = () => {
                 }
             });
 
-            return res.status(HTTP_STATUS.NO_CONTENT).send();
+            return res.status(HTTP_STATUS.NO_CONTENT).json({
+                success: true,
+                message: 'Song updated successfully',
+                data: updatedData
+            });
         } catch (error) {
             return next(error);
         } finally {
@@ -263,7 +267,11 @@ const songController = () => {
 
             await prisma.songs.delete({ where: { id: songId } });
 
-            return res.status(HTTP_STATUS.NO_CONTENT).send();
+            return res.status(HTTP_STATUS.NO_CONTENT).json({
+                success: true,
+                message: 'Song delete successfully',
+                data: song
+            });
         } catch (error) {
             return next(error);
         } finally {
