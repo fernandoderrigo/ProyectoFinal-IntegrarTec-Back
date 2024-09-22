@@ -82,8 +82,8 @@ const songController = () => {
                         const imageKey = req.file.location.split('/').pop();
                         await deleteFile(imageKey);
                     }
-                } catch (error) {
-                    next(error)
+                } catch (deleteError) {
+                    next(deleteError)
                 }
                 next(error);
             } finally {
@@ -96,7 +96,7 @@ const songController = () => {
         try {
             const songs = await prisma.songs.findMany({
                 include: {
-                    artists: { 
+                    artists: {
                         include: {
                             artist: true,
                         },
@@ -240,7 +240,7 @@ const songController = () => {
     };
 
     const deleteSong = async (req, res, next) => {
-        const songId  = parseInt(req.params.id, 10);
+        const songId = parseInt(req.params.id, 10);
 
         try {
             const song = await prisma.songs.findUnique({ where: { id: songId } });
@@ -249,7 +249,7 @@ const songController = () => {
             }
 
             await prisma.History_User.deleteMany({
-                where: {id_song : songId },
+                where: { id_song: songId },
             });
 
             await prisma.ArtistsOnSongs.deleteMany({
