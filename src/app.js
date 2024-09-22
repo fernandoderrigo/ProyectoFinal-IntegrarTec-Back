@@ -19,12 +19,13 @@ app.get('/', (_req, res) => {
         app: "Escucha Facil",
         routes: {
             index: "/api",
-            getSongs: "/songs",
-            getArtists: "/artists",
-            getAlbums: "/albums",
-            getPlaylists: "/playlists",
-            getUsers: "/users",
-            getUserHistory: "/user-history",
+            Songs: "/songs",
+            Artists: "/artists",
+            Albums: "/albums",
+            Playlists: "/playlists",
+            Users: "/users",
+            UserHistory: "/user-history",
+            Preferences: "/preferences-user"
         }
     };
     res.status(HTTP_STATUS.OK).json(responseServer)
