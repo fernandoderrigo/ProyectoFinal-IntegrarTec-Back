@@ -12,6 +12,25 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/', () => {
+    const responseServer = {
+        status: 200,
+        app: "Escucha Facil",
+        routes: {
+            index: "/api",
+            getSongs: "/songs",
+            getArtists: "/artists",
+            getAlbums: "/albums",
+            getPlaylists: "/playlists",
+            getUsers: "/users",
+            getUserHistory: "/user-history",
+        }
+    };
+    return
+    {
+        responseServer
+    }
+})
 app.use('/users', userRoutes);
 app.use('/user-history', verifyMiddleware, userHistoryRoutes);
 app.use('/songs',verifyMiddleware, songRoutes);
