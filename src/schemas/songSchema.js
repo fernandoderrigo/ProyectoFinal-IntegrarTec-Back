@@ -3,7 +3,7 @@ import Joi from 'joi';
 export const createSongSchema = Joi.object({
     name: Joi.string().min(3).max(100).required(),
     duration: Joi.number().required(),
-    gender: Joi.string().valid('Pop', 'Rock', 'Hip-Hop', 'Jazz', 'Classical').required(),
+    gender: Joi.string().valid('Pop', 'Rock', 'Hip-Hop', 'Jazz', 'Classical','Reggaeton').required(),
     release_Date: Joi.date().iso().required(),
     image_Url: Joi.string().optional(),
     audio_Url: Joi.string(),

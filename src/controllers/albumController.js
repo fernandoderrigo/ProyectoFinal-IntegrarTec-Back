@@ -72,14 +72,14 @@ const albumController = () => {
                 return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: 'Error uploading file: ' + err.message });
             };
 
-            const { albumId } = req.params;
+            const { id } = req.params;
             const { error: validationError } = updateAlbumSchema.validate(req.body);
             if (validationError) {
                 return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: validationError.details[0].message });
             }
 
             try {
-                const album = await prisma.albums.findUnique({ where: { id: parseInt(albumId) } });
+                const album = await prisma.albums.findUnique({ where: { id: parseInt(id) } });
                 if (!album) {
                     return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "Album not found" });
                 }
@@ -96,7 +96,7 @@ const albumController = () => {
                 const existingAlbum = await prisma.albums.findFirst({
                     where: {
                         name: req.body.name,
-                        NOT: { id: parseInt(albumId) }
+                        NOT: { id: parseInt(id) }
                     }
                 });
 
@@ -107,7 +107,7 @@ const albumController = () => {
                 }
 
                 await prisma.albums.update({
-                    where: { id: parseInt(albumId) },
+                    where: { id: parseInt(id) },
                     data: {
                         ...req.body,
                         image_Url: coverImage, 
@@ -125,10 +125,10 @@ const albumController = () => {
     };
 
     const deleteAlbum = async (req, res, next) => {
-        const { albumId } = req.params;
+        const { id } = req.params;
 
         try {
-            const album = await prisma.albums.findUnique({ where: { id: parseInt(albumId) } });
+            const album = await prisma.albums.findUnique({ where: { id: parseInt(id) } });
             if (!album) {
                 return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "Album not found" });
             }
@@ -138,7 +138,7 @@ const albumController = () => {
                 await deleteFile(imageKey);
             }
 
-            await prisma.albums.delete({ where: { id: parseInt(albumId) } });
+            await prisma.albums.delete({ where: { id: parseInt(id) } });
 
             return res.status(HTTP_STATUS.NO_CONTENT).send();
         } catch (error) {
@@ -168,11 +168,11 @@ const albumController = () => {
     };
 
     const getAlbumById = async (req, res, next) => {
-        const { albumId } = req.params;
+        const { id } = req.params;
 
         try {
             const album = await prisma.albums.findUnique({
-                where: { id: parseInt(albumId) },
+                where: { id: parseInt(id) },
                 include: { songs: true } 
             });
 
