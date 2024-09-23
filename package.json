@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
   "build": "prisma db pull && prisma generate",
-  "start": "node index.js"
+  "start": "node index.js",
+  "dev": "node --watch index.js"
   },
   "keywords": [],
   "author": "",

@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model albums {
+  id                  Int       @id @default(autoincrement())
+  name                String
+  release_Date        DateTime
+  image_Url           String
+  created_At_Datetime DateTime  @default(now())
+  updated_At_Datetime DateTime?
+  songs               songs[]
+}
+
+model artists {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique
+  artists_on_songs artists_on_songs[]
+}
+
+model artists_on_songs {
+  songId   Int
+  artistId Int
+  artists  artists @relation(fields: [artistId], references: [id])
+  songs    songs   @relation(fields: [songId], references: [id])
+
+  @@id([songId, artistId])
+}
+
+model history_user {
+  id_user Int
+  id_song Int
+  date    DateTime @default(now())
+  songs   songs    @relation(fields: [id_song], references: [id])
+  users   users    @relation(fields: [id_user], references: [id])
+
+  @@id([id_user, id_song, date])
+}
+
+model playlists {
+  id                  Int                @id @default(autoincrement())
+  name                String
+  created_At_Datetime DateTime           @default(now())
+  updated_At_Datetime DateTime?
+  id_user             Int
+  users               users              @relation(fields: [id_user], references: [id])
+  song_in_playlist    song_in_playlist[]
+}
+
+model preferences {
+  id_user     Int      @id
+  genders_fav String[]
+  artists_fav String[]
+  users       users    @relation(fields: [id_user], references: [id])
+  songs       songs[]  @relation("UserFavoriteSongs")
+}
+
+model song_in_playlist {
+  id_Playlist Int
+  id_Song     Int
+  id          Int       @id @default(autoincrement())
+  playlists   playlists @relation(fields: [id_Playlist], references: [id])
+  songs       songs     @relation(fields: [id_Song], references: [id])
+
+  @@unique([id_Playlist, id_Song])
+}
+
+model songs {
+  id                  Int                @id @default(autoincrement())
+  name                String
+  duration            String
+  gender              String
+  image_Url           String
+  release_Date        DateTime
+  state               String             @default("1")
+  created_At_Datetime DateTime           @default(now())
+  updated_At_Datetime DateTime?
+  albumId             Int?
+  audio_Url           String
+  artists_on_songs    artists_on_songs[]
+  history_user        history_user[]
+  song_in_playlist    song_in_playlist[]
+  albums              albums?            @relation(fields: [albumId], references: [id])
+  preferences         preferences[]      @relation("UserFavoriteSongs")
+}
+
+model users {
+  id                  Int            @id @default(autoincrement())
+  email               String         @unique
+  password            String
+  state               String         @default("1")
+  birthDay_date       DateTime
+  first_Name          String
+  last_Name           String
+  nick_Name           String         @unique
+  image_Url           String?
+  created_At_dateTime DateTime       @default(now())
+  updated_At_dateTime DateTime?
+  history_user        history_user[]
+  playlists           playlists[]
+  preferences         preferences?
+}

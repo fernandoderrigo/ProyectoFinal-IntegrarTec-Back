@@ -17,7 +17,7 @@ const playlistController = () => {
         if (validationError) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: validationError.details[0].message });
         }
-        
+    
         try {
             if (req.body.id_user) {
                 const userExists = await prisma.users.findUnique({
@@ -27,36 +27,36 @@ const playlistController = () => {
                     return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "User not found" });
                 }
             }
-            
+    
             const songChecks = await Promise.all(req.body.songs.map(async (songId) => {
                 return await prisma.songs.findUnique({ where: { id: songId } });
             }));
-
+    
             const missingSongs = songChecks.filter(song => !song);
             if (missingSongs.length > 0) {
                 return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "One or more songs not found" });
             }
-
+    
             const playlist = await prisma.playlists.create({
                 data: {
                     name: req.body.name,
                     created_At_Datetime: new Date(),
                     updated_At_Datetime: null,
                     users: req.body.id_user ? { connect: { id: req.body.id_user } } : undefined,
-                    songs: {
+                    song_in_playlist: {
                         create: req.body.songs.map(songId => ({
-                            song: { connect: { id: songId } }
-                        }))
-                    }
+                            songs: { connect: { id: songId } }
+                        })),
+                    },
                 },
                 include: {
                     users: true,
-                    songs: {
+                    song_in_playlist: {
                         include: {
-                            song: true
-                        }
-                    }
-                }
+                            songs: true,
+                        },
+                    },
+                },
             });
     
             return res.status(HTTP_STATUS.CREATED).json({
@@ -69,7 +69,7 @@ const playlistController = () => {
         } finally {
             await prisma.$disconnect();
         }
-    };
+    };    
 
     const updatePlaylist = async (req, res, next) => {
         const { error } = updatePlaylistSchema.validate(req.body);
@@ -84,13 +84,14 @@ const playlistController = () => {
                 where: { id: playlistId },
                 include: {
                     users: true,
-                    songs: {
+                    song_in_playlist: {
                         include: {
-                            songs: true
-                        }
-                    }
-                }
+                            songs: true,
+                        },
+                    },
+                },
             });
+    
             if (!playlist) {
                 return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "Playlist not found" });
             }
@@ -103,51 +104,47 @@ const playlistController = () => {
             if (missingSongs.length > 0) {
                 return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "One or more songs not found" });
             }
-
-            const updatedData = {
-                ...playlist,
-                ...req.body,
-                updated_At_Datetime: new Date()
-            };
     
             await prisma.playlists.update({
                 where: { id: playlistId },
                 data: {
-                    name: updatedData.name || playlist.name,
-                    id_user: updatedData.id_user || playlist.id_user,
-                    user: updatedData.id_user ? { connect: { id: updatedData.id_user } } : undefined,
-                    songs: { 
-                        deleteMany: {}, 
+                    name: req.body.name || playlist.name,
+                    id_user: req.body.id_user || playlist.id_user,
+                    users: req.body.id_user ? { connect: { id: req.body.id_user } } : undefined,
+                    song_in_playlist: {
+                        deleteMany: {},
                         create: req.body.songs.map(songId => ({
-                            song: { connect: { id: songId } }
-                        }))
-                    }
+                            songs: { connect: { id: songId } },
+                        })),
+                    },
+                    updated_At_Datetime: new Date(),
                 },
                 include: {
-                    user: true,
-                    songs: { 
+                    users: true,
+                    song_in_playlist: {
                         include: {
-                            song: true
-                        }
-                    }
-                }
+                            songs: true,
+                        },
+                    },
+                },
             });
+    
             return res.status(HTTP_STATUS.NO_CONTENT).send();
         } catch (error) {
             next(error);
         } finally {
             await prisma.$disconnect();
         }
-    };
+    };    
 
     const getPlaylists = async (req, res, next) => {
         try {
             const playlists = await prisma.playlists.findMany({
                 include: {
                     users: true,
-                    songs: { 
+                    song_in_playlist: { 
                         include: {
-                            song: true
+                            songs: true
                         }
                     }
                 }
@@ -167,16 +164,22 @@ const playlistController = () => {
         }
         try {
             const playlists = await prisma.playlists.findMany({
-                where: { name: req.params.name },
+                where: {
+                    name: {
+                        contains: req.params.name, 
+                        mode: 'insensitive', 
+                    },
+                },
                 include: {
                     users: true,
-                    songs: { 
+                    song_in_playlist: {
                         include: {
-                            song: true
-                        }
-                    }
-                }
+                            songs: true,
+                        },
+                    },
+                },
             });
+    
             if (!playlists || playlists.length === 0) {
                 return res.status(HTTP_STATUS.NOT_FOUND).json({ error: 'Playlist not found' });
             }
@@ -186,7 +189,7 @@ const playlistController = () => {
         } finally {
             await prisma.$disconnect();
         }
-    };
+    };    
 
     const deletePlaylist = async (req, res, next) => {
         const playlistId = parseInt(req.params.id, 10);
@@ -200,7 +203,7 @@ const playlistController = () => {
                 return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "Playlist not found" });
             }
 
-            await prisma.Song_In_Playlist.deleteMany({
+            await prisma.song_in_playlist.deleteMany({
                 where: { id_Playlist: playlistId },
             });
 

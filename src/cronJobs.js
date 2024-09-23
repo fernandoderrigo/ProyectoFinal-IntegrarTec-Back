@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-cron.schedule('0 0 * * *', async () => {
+cron.schedule('* * * * *', async () => {
   console.log('Starting daily task to collect and update user preferences...');
 
   try {
@@ -11,18 +11,18 @@ cron.schedule('0 0 * * *', async () => {
 
     for (const user of users) {
 
-      const history = await prisma.history_User.findMany({
+      const history = await prisma.history_user.findMany({
         where: { id_user: user.id },
         include: {
-            song: {
+          songs: {
             include: {
-                artists: {
+              artists_on_songs: {
                 include: {
-                    artist: true
+                  artists: true 
                 }
-                }
+              }
             }
-            }
+          }
         }
       });
 
@@ -33,17 +33,17 @@ cron.schedule('0 0 * * *', async () => {
       }
 
       const songGenres = history
-        .filter(h => h.song) 
-        .map(h => h.song.gender);
+        .filter(h => h.songs)  
+        .map(h => h.songs.gender);
         
       const favoriteGenres = getTopTwoGenres(songGenres);
 
       const songArtistIds = history.flatMap((h) => {
-        if (h.song && h.song.artists) {
-          return h.song.artists.map((artistOnSong) => artistOnSong.artistId);
+        if (h.songs && h.songs.artists_on_songs) {
+          return h.songs.artists_on_songs.map((artistOnSong) => artistOnSong.artistId);
         }
         return []; 
-      });      
+      });     
       
       const favoriteArtists = await getTopTwoArtists(songArtistIds);
 
@@ -52,17 +52,17 @@ cron.schedule('0 0 * * *', async () => {
       await prisma.preferences.upsert({
         where: { id_user: user.id },
         update: {
-          genders_fav: favoriteGenres,
-          artists_fav: favoriteArtists,
-          favorite_songs: { set: favoriteSongs.map(song => ({ id: song.id })) }
+            genders_fav: favoriteGenres,
+            artists_fav: favoriteArtists,
+            songs: { set: favoriteSongs.map(song => ({ id: song.id })) } 
         },
         create: {
-          id_user: user.id,
-          genders_fav: favoriteGenres,
-          artists_fav: favoriteArtists,
-          favorite_songs: { connect: favoriteSongs.map(song => ({ id: song.id })) }
+            id_user: user.id,
+            genders_fav: favoriteGenres,
+            artists_fav: favoriteArtists,
+            songs: { connect: favoriteSongs.map(song => ({ id: song.id })) } 
         }
-      });
+    });    
     }
 
     console.log('Preferences successfully updated for all users.');
@@ -111,6 +111,6 @@ function getTopTwoSongs(history) {
 
   return history
     .filter(h => topSongIds.includes(h.id_song.toString()))
-    .map(h => h.song);
+    .map(h => h.songs);
 }
 

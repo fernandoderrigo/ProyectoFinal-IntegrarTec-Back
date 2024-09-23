@@ -8,7 +8,7 @@ const router = Router();
 const { createUser, getUsers, getUserById, updateUser, deleteUser, loginUser, refreshToken} = userController();
 
 router.route('/')
-  .get(getUsers)
+  .get(verifyMiddleware,getUsers)
   .post(createUser)
 
 router.route('/:id')

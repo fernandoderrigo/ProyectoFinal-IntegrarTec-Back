@@ -12,7 +12,7 @@ router.route('/:id')
     .put(updatePlaylist)
     .delete(deletePlaylist)
 
-router.route('/:name')
+router.route('/name/:name')
     .get(getPlaylistByName);
 
 export default router;

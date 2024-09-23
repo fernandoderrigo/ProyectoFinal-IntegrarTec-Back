@@ -34,7 +34,7 @@ const userHistoryController = () => {
             return res.status(HTTP_STATUS.NOT_FOUND).json({ error: 'Song not found' });
         }
 
-        const userHistory = await prisma.history_User.create({
+        const userHistory = await prisma.history_user.create({
             data: {
             ...req.body,
             date: new Date() 
@@ -49,23 +49,23 @@ const userHistoryController = () => {
 
   const getUserHistory = async (req, res) => {
     const { userId } = req.params;
-  
+    const userIdInt = parseInt(userId,10)
     try {
       const userExists = await prisma.users.findUnique({
-        where: { id: userId },
+        where: { id: userIdInt },
       });
   
       if (!userExists) {
         return res.status(HTTP_STATUS.NOT_FOUND).json({ error: 'User not found' });
       }
   
-      const userHistory = await prisma.history_User.findMany({
+      const userHistory = await prisma.history_user.findMany({
         where: { 
-          id_user: parseInt(userId) 
+          id_user: parseInt(userIdInt) 
         },
         orderBy: { date: 'desc' },
         include: {  
-          song: true,
+          songs: true,
         },
       });
   
@@ -77,11 +77,11 @@ const userHistoryController = () => {
 
   const getAllUsersHistories = async (req, res) => {
     try {
-      const usersHistories = await prisma.history_User.findMany({
+      const usersHistories = await prisma.history_user.findMany({
         orderBy: { date: 'desc' },
         include: {  
-          user: false,
-          song: true,
+          users: false,
+          songs: true,
         },
       });
   

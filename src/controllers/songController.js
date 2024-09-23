@@ -96,12 +96,12 @@ const songController = () => {
         try {
             const songs = await prisma.songs.findMany({
                 include: {
-                    artists: {
+                    artists_on_songs: {
                         include: {
-                            artist: true,
+                            artists: true,
                         },
                     },
-                    album: true,
+                    albums: true,
                 },
             });
             res.json(songs);
@@ -122,12 +122,12 @@ const songController = () => {
             const song = await prisma.songs.findUnique({
                 where: { id: parseInt(req.params.id) },
                 include: {
-                    artists: {
+                    artists_on_songs: {
                         include: {
-                            artist: true,
+                            artists: true,
                         },
                     },
-                    album: true,
+                    albums: true,
                 }
             });
 
@@ -147,33 +147,41 @@ const songController = () => {
     };
 
     const getSongByName = async (req, res, next) => {
-        const { name } = req.params
-        const { error } = nameSongSchema.validate(name);
+        const { name } = req.params; 
+        const { error } = nameSongSchema.validate({ name });
         if (error) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: error.details[0].message });
         }
+    
         try {
             const songs = await prisma.songs.findMany({
-                where: { name: name },
+                where: {
+                    name: {
+                        contains: name,   
+                        mode: 'insensitive', 
+                    }
+                },
                 include: {
-                    artists: {
+                    artists_on_songs: {
                         include: {
-                            artist: true,
+                            artists: true,
                         },
                     },
-                    album: true,
-                }
+                    albums: true,
+                },
             });
+    
             if (!songs || songs.length === 0) {
-                return res.status(HTTP_STATUS.NOT_FOUND).json({ error: 'Song not found' });
+                return res.status(HTTP_STATUS.NOT_FOUND).json({ error: 'No songs found' });
             }
+    
             res.json(songs);
         } catch (error) {
             next(error);
         } finally {
             await prisma.$disconnect();
         }
-    };
+    };    
 
     const updateSong = async (req, res, next) => {
         const { error: validationError } = updateSongSchema.validate(req.body);
@@ -253,11 +261,11 @@ const songController = () => {
                 return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "Song not found" });
             }
 
-            await prisma.History_User.deleteMany({
+            await prisma.history_user.deleteMany({
                 where: { id_song: songId },
             });
 
-            await prisma.ArtistsOnSongs.deleteMany({
+            await prisma.artists_on_songs.deleteMany({
                 where: { songId: songId },
             });
 

@@ -14,11 +14,11 @@ const preferenceController = () => {
         const userId = parseInt(req.params.id, 10);
     
         try {
-            const preference = await prisma.Preferences.findUnique({
+            const preference = await prisma.preferences.findUnique({
                 where: { id_user: userId },
                 include: {
-                    favorite_songs: true,
-                    user: true,
+                    songs: true,
+                    users: true,
                 },
             });
     
@@ -28,38 +28,38 @@ const preferenceController = () => {
     
             const genresFav = preference.genders_fav;
     
-            const songsByGenres = await prisma.Songs.findMany({
+            const songsByGenres = await prisma.songs.findMany({
                 where: {
                     gender: { in: genresFav }, 
                 },
                 include: {
-                    artists: {
+                    artists_on_songs: { 
                         include: {
-                            artist: true,
+                            artists: true, 
                         },
                     },
-                    album: true,
+                    albums: true, 
                 },
             });
     
             const artistIds = preference.artists_fav; 
-            const songsByArtists = await prisma.Songs.findMany({
+            const songsByArtists = await prisma.songs.findMany({
                 where: {
-                    artists: {
+                    artists_on_songs: {
                         some: {
-                            artist: {
+                            artists: {
                                 name: { in: artistIds }, 
                             },
                         },
                     },
                 },
                 include: {
-                    artists: {
+                    artists_on_songs: { 
                         include: {
-                            artist: true,
+                            artists: true, 
                         },
                     },
-                    album: true,
+                    albums: true, 
                 },
             });
     
@@ -75,7 +75,7 @@ const preferenceController = () => {
         } finally {
             await prisma.$disconnect();
         }
-    };       
+    };              
 
     return {
         getPreferenceByIdUser,
