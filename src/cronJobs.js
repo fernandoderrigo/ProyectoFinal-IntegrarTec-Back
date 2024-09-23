@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-cron.schedule('* * * * *', async () => {
+cron.schedule('0 0 * * *', async () => {
   console.log('Starting daily task to collect and update user preferences...');
 
   try {
